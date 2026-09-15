@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-paper text-clay antialiased;
+  }
+
+  ::selection {
+    background-color: #BE4A24;
+    color: #F7F2E8;
+  }
+}
+
+@layer components {
+  /*
+    Проза гайда. Селекторы намеренно одноуровневые (.prose-editorial h2, а не
+    вложенные) — иначе они перебивают точечные классы прямо в разметке гайда
+    и цвет текста в цветных врезках уезжает в основной.
+  */
+  .prose-editorial {
+    @apply font-body text-[18px] leading-[1.75] text-clay;
+  }
+
+  .prose-editorial p {
+    @apply mb-6;
+  }
+
+  .prose-editorial h2 {
+    @apply font-serif text-[30px] md:text-[38px] font-bold text-clay mt-16 mb-6 leading-[1.1];
+    scroll-margin-top: 90px;
+  }
+
+  .prose-editorial h3 {
+    @apply font-serif text-[22px] md:text-[25px] font-semibold text-clay mt-10 mb-3 leading-[1.25];
+  }
+
+  .prose-editorial ul,
+  .prose-editorial ol {
+    @apply mb-6 pl-6 space-y-2.5;
+  }
+
+  .prose-editorial ul {
+    @apply list-none;
+  }
+
+  .prose-editorial ul > li {
+    @apply relative;
+  }
+
+  .prose-editorial ul > li::before {
+    content: "";
+    position: absolute;
+    left: -1.25rem;
+    top: 0.72em;
+    width: 6px;
+    height: 6px;
+    background: #BE4A24;
+    transform: rotate(45deg);
+  }
+
+  .prose-editorial ol {
+    @apply list-decimal;
+  }
+
+  .prose-editorial ol > li::marker {
+    color: #BE4A24;
+    font-weight: 600;
+  }
+
+  .prose-editorial a {
+    @apply text-terra underline underline-offset-[3px] decoration-terra/40 hover:decoration-terra transition-colors;
+  }
+
+  .prose-editorial strong {
+    @apply font-semibold text-clay;
+  }
+
+  .prose-editorial code {
+    @apply font-mono text-[15px] bg-paper-deep border border-paper-line px-1.5 py-0.5 rounded;
+  }
+
+  .prose-editorial pre {
+    @apply font-mono text-[14px] bg-clay text-paper p-5 rounded-lg overflow-x-auto mb-6 leading-relaxed;
+  }
+
+  .prose-editorial pre code {
+    @apply bg-transparent border-0 p-0 text-paper text-[14px];
+  }
+
+  .prose-editorial blockquote {
+    @apply border-l-4 border-terra/50 pl-5 italic text-clay-muted my-8;
+  }
+
+  .prose-editorial table {
+    @apply w-full text-[16px] mb-8 border-collapse;
+  }
+
+  .prose-editorial th {
+    @apply text-left font-sans text-[13px] uppercase tracking-wider text-clay-subtle border-b border-paper-line pb-2;
+  }
+
+  .prose-editorial td {
+    @apply align-top border-b border-paper-line py-3 pr-4;
+  }
+}
