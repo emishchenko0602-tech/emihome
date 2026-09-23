@@ -1,0 +1,46 @@
+{
+  "slug": "vanna-ili-dushevaya",
+  "outDir": "workspace/carousel/vanna-ili-dushevaya/format2",
+  "facePhoto": "workspace/assets/photos/author/author.jpg",
+  "designNote": "Editorial interior-design studio style. Vertical 4:5. Background is a warm off-white, the colour of baked milk. Text is a very dark warm brown, almost black. Exactly one accent colour: a muted terracotta. Large serif headlines, small monospaced kickers in uppercase with wide letter spacing. Generous whitespace, calm and expensive, print-magazine feel. No photographs, no icons, no illustrations, no logos, no watermarks, no page numbers. Every slide keeps a clean empty horizontal strip about 8 percent tall along the very bottom, with nothing in it. Render only the text that is specified, nothing else, spelled exactly as given.",
+  "slides": [
+    {
+      "name": "cover",
+      "face": true,
+      "prompt": "Cover slide. The author stands on the right side, from the waist up, calm and confident, looking straight at the camera, softly lit against the warm off-white background. On the left, a large serif headline in Russian on two lines: «Душевая без порожка» then «а потом соседи снизу». Under it a short terracotta horizontal line, and below that a smaller paragraph in Russian: «В рилсах показывают пять этапов. И ни одной цифры, без которых зальёт.» In the lower left corner a small terracotta rounded pill with white Russian text «листай →». Nothing else on the slide."
+    },
+    {
+      "name": "01-uklon",
+      "prompt": "Text slide, no people. Top left, a small uppercase monospaced kicker in terracotta: «ЦИФРА 1». Under it a serif headline in Russian: «Уклон к трапу». Below, very large terracotta numerals filling the middle of the slide: «1,5–2 %». Under the number a short terracotta line, then a Russian paragraph in dark brown: «Это 1–2 см на метр. Меньше: вода стоит лужей. Больше: скользко.» At the bottom left, small grey Russian text: «СП 29.13330.2011». Nothing else."
+    },
+    {
+      "name": "02-gidro-steny",
+      "prompt": "Text slide, no people. Same layout and grid as the previous slide. Top left, small uppercase monospaced kicker in terracotta: «ЦИФРА 2». Under it a serif headline in Russian: «Гидроизоляция заходит на стены». Below, very large terracotta text filling the middle: «20 см». Under it a short terracotta line, then a Russian paragraph in dark brown: «Пол сделали, стены забыли. Вода уходит по шву в перекрытие.» At the bottom left, small grey Russian text: «СП 71.13330.2017». Nothing else."
+    },
+    {
+      "name": "03-poryadok",
+      "prompt": "Diagram slide, no people. Top left, small uppercase monospaced kicker in terracotta: «ПОРЯДОК СЛОЁВ». Under it a serif headline in Russian: «Гидроизоляция под плиткой». In the centre, a simple cross-section drawn as four horizontal bands stacked on top of each other, each band a flat block of colour with a Russian label written on it in clean sans-serif. From top to bottom the bands read: «плитка» on a light beige band, «гидроизоляция» on a terracotta band with white lettering, «стяжка с уклоном» on a warm grey band, «основание» on a darker grey band. The terracotta band is clearly the emphasis. Below the diagram, a Russian paragraph in dark brown: «В ролике её делают после укладки плитки. Так нельзя.» Nothing else."
+    },
+    {
+      "name": "04-plitka-na-plitku",
+      "prompt": "Text slide, no people. Top left, small uppercase monospaced kicker in terracotta: «ПЛИТКА НА ПЛИТКУ». Under it a serif headline in Russian on two lines: «Можно. Но при трёх условиях». Below, three numbered lines, each starting with a large terracotta numeral and followed by dark brown Russian text: «1. Старая не бухтит и не шатается», «2. Перепад не больше 5 мм», «3. Праймер и клей класса C2 S1». Generous spacing between the three lines. Under them a short terracotta line, then a Russian sentence in dark brown: «Нарушили одно, отрывается весь слой.» Nothing else."
+    },
+    {
+      "name": "05-porog",
+      "prompt": "Text slide, no people. Top left, small uppercase monospaced kicker in terracotta: «ПОРОЖЕК». Under it a serif headline in Russian on two lines: «Убрали порог, включается новое требование». Below, a Russian paragraph in dark brown with the words «по всей площади» set in terracotta: «Пол санузла в один уровень с коридором? Тогда гидроизоляция по всей площади, а не только в душевой.» At the bottom left, small grey Russian text: «СП 29.13330.2011». Plenty of empty space. Nothing else."
+    },
+    {
+      "name": "06-dokumenty",
+      "prompt": "Text slide, no people. Top left, small uppercase monospaced kicker in terracotta: «ДОКУМЕНТЫ». Under it a serif headline in Russian: «Это оформляется». Below, two short blocks of Russian text in dark brown separated by white space. First block: «В пределах существующих подводок: эскиз, уведомительный порядок.» Second block: «Двигаете стены или объединяете санузел: проект и техзаключение.» Under them a short terracotta line, then a smaller Russian sentence: «Мокрая зона не может встать над комнатой соседей снизу.» Nothing else."
+    },
+    {
+      "name": "07-direct",
+      "prompt": "Text slide, absolutely no people, no avatars, no profile pictures, no faces anywhere. Top left, small uppercase monospaced kicker in terracotta: «КАК ЗАБРАТЬ». Under it a serif headline in Russian: «Полный разбор в директ». In the centre, a clean mockup of a messenger conversation drawn as two chat bubbles with no avatars beside them: an outgoing terracotta bubble aligned to the right with white Russian text «ДУШЕВАЯ», and below it an incoming light beige bubble aligned to the left with dark brown Russian text «Держите разбор: пять этапов, все цифры и чек-лист вопросов подрядчику». Under the bubbles a Russian sentence in dark brown with the word «ДУШЕВАЯ» in terracotta: «Напишите ДУШЕВАЯ в директ, пришлю ссылку.» Nothing else."
+    },
+    {
+      "name": "08-final",
+      "face": true,
+      "prompt": "Closing slide. The author stands on the right side, from the waist up, warm confident smile, looking straight at the camera, softly lit against the warm off-white background. On the left, a large serif headline in Russian on two lines: «Сохраните, пока не начали ремонт». Under it a short terracotta line, then a smaller Russian paragraph in dark brown: «Эти цифры спрашивают у подрядчика до оплаты, а не после протечки.» In the lower left corner a terracotta rounded pill with white Russian text «ДУШЕВАЯ → в директ». Nothing else."
+    }
+  ]
+}

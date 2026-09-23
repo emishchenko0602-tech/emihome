@@ -1,0 +1,21 @@
+{
+  "slug": "vanna-ili-dushevaya",
+  "outDir": "workspace/carousel/vanna-ili-dushevaya/format2-v2",
+  "facePhoto": "workspace/assets/photos/author/author.jpg",
+  "designNote": "Editorial interior-design studio style. Vertical 4:5. Background is a warm off-white, the colour of baked milk. Text is a very dark warm brown, almost black. Exactly one accent colour: a muted terracotta. Large serif headlines, small monospaced kickers in uppercase with wide letter spacing. Generous whitespace, calm and expensive, print-magazine feel. No photographs, no icons, no illustrations, no logos, no watermarks, no page numbers. Every slide keeps a clean empty horizontal strip about 8 percent tall along the very bottom, with nothing in it. Render only the text that is specified, nothing else, spelled exactly as given.",
+  "slides": [
+    {
+      "name": "cover",
+      "face": true,
+      "prompt": "Cover slide. The author stands on the right side, from the waist up, calm and confident, looking straight at the camera, softly lit against the warm off-white background. On the left, a large serif headline in Russian on two lines: «Душевая без порожка». Under it a short terracotta horizontal line, and below that a smaller paragraph in Russian in dark brown: «Что предусмотреть, чтобы избежать неприятностей». In the lower left corner a small terracotta rounded pill with white Russian text «листай →». Nothing else on the slide."
+    },
+    {
+      "name": "stoyak",
+      "prompt": "Text slide, no people. Top left, a small uppercase monospaced kicker in terracotta: «ШАГ ПЕРВЫЙ». Under it a large serif headline in Russian on two lines: «Начните с соседей снизу». Below, a short terracotta horizontal line, then a Russian paragraph in dark brown with the words «максимальный опуск стояка» set in terracotta: «Спуститесь к ним до начала работ и согласуйте максимальный опуск стояка. Чем ниже получится врезка, тем легче выдержать уклон к трапу.» Generous whitespace around the text. Nothing else."
+    },
+    {
+      "name": "dokumenty",
+      "prompt": "Text slide, no people. Top left, a small uppercase monospaced kicker in terracotta: «ДОКУМЕНТЫ». Under it a large serif headline in Russian: «Это оформляется». Below, two short blocks of Russian text in dark brown separated by white space. First block: «Трубы и стояк остаются на своих местах? Хватит эскиза.» Second block: «Двигаете стены или объединяете санузел? Нужен проект и техзаключение.» Under them a short terracotta line, then a smaller Russian sentence: «Мокрая зона не может оказаться над комнатой соседей снизу.» Nothing else."
+    }
+  ]
+}
