@@ -45,7 +45,53 @@
           "commentContains"
         ]
       }
+    },
+    {
+      "slug": "chto-vhodit-v-dizayn-proekt",
+      "keyword": "ПРАЙС",
+      "title": "Что входит в полный дизайн-проект: 15 позиций",
+      "date": "2026-09-24",
+      "guideUrl": "https://emihome.layero.app/guides/chto-vhodit-v-dizayn-proekt",
+      "formats": [],
+      "status": {
+        "guide": "2026-09-24",
+        "funnel": "2026-09-24"
+      },
+      "source": "список от Екатерины голосовым 24.09",
+      "funnels": [
+        {
+          "provider": "chatplace",
+          "botUsername": "@emi.home",
+          "automationId": "01a0d2fb-ab19-7007-96ee-82e5a200e142",
+          "keywords": [
+            "ПРАЙС",
+            "PRICE",
+            "PRAIS"
+          ],
+          "triggers": [
+            "messageContains",
+            "commentContains"
+          ]
+        },
+        {
+          "provider": "chatplace",
+          "botId": "01a09ef8-4de3-711d-956b-ec6c365004c8",
+          "botUsername": "@katerina.mi",
+          "automationId": "01a0d360-3513-70c2-bec5-1bd9a972f321",
+          "keywords": [
+            "ПРАЙС",
+            "PRICE",
+            "PRAIS"
+          ],
+          "triggers": [
+            "messageContains",
+            "commentContains"
+          ],
+          "status": "Active",
+          "created": "2026-09-24"
+        }
+      ]
     }
   ],
-  "updated": "2026-09-16"
+  "updated": "2026-09-24"
 }
