@@ -51,7 +51,9 @@ def ass_time(t):
     return '%d:%02d:%05.2f' % (h, m, s)
 
 
-def build_subs(lines, path, seconds, size, font, color, outline, shadow=5, align=8, margin=300, gap=0.0, spans=None):
+def build_subs(lines, path, seconds, size, font, color, outline, shadow=5,
+               align=8, margin=300, gap=0.0, spans=None,
+               font_thin=None, thin_scale=0.46):
     """align 8 — сверху, 5 — посередине, 2 — снизу.
 
     По центру текст ложится на лицо: в кадрах со стройки автор обычно стоит
@@ -74,9 +76,21 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     # Фраза выкладывается кусками, каждый над своим планом. Так текст сам
     # становится ритмом: он прирастает вместе со склейками, и ролик перестаёт
     # быть неподвижной надписью поверх меняющихся картинок.
+    # Строка, начатая с ~, набирается тонким шрифтом и мельче. Так подпись
+    # получается в два уровня: мелкое пояснение и крупное главное слово —
+    # то, что Екатерина назвала «разноплановые, есть тоненькие, есть толстые».
+    # Отдельный стиль для этого не нужен, хватает команд прямо в строке.
+    thin = '{\\fn%s\\fs%d}' % (font_thin or font, int(size * thin_scale))
+
+    def one(ln):
+        if ln.startswith('~'):
+            return thin + ln[1:].strip() + '{\\r}'
+        return ln
+
     def block(lns, a, b, fin, fout):
         tpl = 'Dialogue: 0,%s,%s,Trend,,0,0,0,,{\\fad(%d,%d)}%s\n'
-        return tpl % (ass_time(a), ass_time(b), fin, fout, r'\N'.join(lns))
+        return tpl % (ass_time(a), ass_time(b), fin, fout,
+                      r'\N'.join(one(x) for x in lns))
 
     body = ''
     n = len(lines)
@@ -121,6 +135,10 @@ def main():
     p.add_argument('--size', type=int, default=62)
     p.add_argument('--font', default='Lora Medium')
     p.add_argument('--fontsdir', default='workspace/reels/fonts')
+    p.add_argument('--font-thin', default='Manrope Light',
+                   help='шрифт для строк, начатых с ~: мелкий уровень подписи')
+    p.add_argument('--thin-scale', type=float, default=0.46,
+                   help='во сколько раз мелкий уровень меньше крупного')
     p.add_argument('--dim', type=float, default=0.0)
     p.add_argument('--pos', choices=('top', 'middle', 'bottom'), default='top')
     p.add_argument('--margin', type=int, default=300, help='отступ от края, точек')
@@ -223,12 +241,15 @@ def main():
             vf = ('scale=%d:%d:force_original_aspect_ratio=increase,crop=%d:%d,'
                   'setsar=1,fps=%d,eq=brightness=-%.3f' % (W, H, W, H, FPS, a.dim))
             if a.cine:
-                # Поднимаем контраст и слегка греем тени, сверху мягкая виньетка.
-                # Яркость не трогаем: затемнение она уже забраковала, а глубину
-                # даёт именно контраст, а не общее приглушение.
-                vf += (',eq=contrast=1.09:saturation=1.06:gamma=0.98'
+                # Глубину даёт контраст и насыщенность, а не приглушение.
+                #
+                # Виньетка и гамма 0.98 отсюда убраны намеренно. Екатерина
+                # дважды забраковала «затемнение», и оба раза виноваты были
+                # именно они: контраст ей как раз нравится, он нужен. Гамма
+                # поднята выше единицы, чтобы средние тона не проваливались.
+                vf += (',eq=contrast=1.12:saturation=1.10:gamma=1.03'
                        ',colorbalance=rs=0.02:gm=-0.01:bh=0.02'
-                       ',vignette=PI/4.5:mode=forward')
+                       ',unsharp=5:5:0.5:5:5:0.0')
             if a.zoom > 0:
                 # Медленный наезд на каждом плане: статичный кадр даже в быстрой
                 # нарезке читается как фотография. d=1 обязательно, иначе zoompan
@@ -304,7 +325,8 @@ def main():
         print('кусков текста: %d' % len(blocks))
         align = {'top': 8, 'middle': 5, 'bottom': 2}[a.pos]
         build_subs(blocks, subs, a.seconds, a.size, a.font,
-                   '&H00FFFFFF', a.outline, a.shadow, align, a.margin, a.gap, spans)
+                   '&H00FFFFFF', a.outline, a.shadow, align, a.margin, a.gap, spans,
+                   a.font_thin, a.thin_scale)
 
         esc = subs.replace('\\', '/').replace(':', '\\:')
         fd = a.fontsdir.replace('\\', '/').replace(':', '\\:')
