@@ -31,6 +31,12 @@ import tempfile
 
 from PIL import Image, ImageDraw, ImageFont
 
+try:                     # айфон отдаёт фотографии в heic, а их тут большинство
+    import pillow_heif
+    pillow_heif.register_heif_opener()
+except ImportError:
+    pass
+
 W, H = 1080, 1920
 FPS = 30
 BG = (16, 15, 14)
@@ -40,7 +46,7 @@ def load_photos(folder):
     files = []
     seen = set()
     for f in sorted(glob.glob(os.path.join(folder, '*'))):
-        if os.path.splitext(f)[1].lower() not in ('.jpg', '.jpeg', '.png', '.webp'):
+        if os.path.splitext(f)[1].lower() not in ('.jpg', '.jpeg', '.png', '.webp', '.heic'):
             continue
         # На Windows маска без учёта регистра ловит один файл дважды: отсекаем
         # по содержимому, иначе половина «разных» кадров окажется повторами.
@@ -125,6 +131,11 @@ def main():
                    help='знак студии для светлой подложки')
     p.add_argument('--audio', default=None,
                    help='звуковая дорожка; по умолчанию ролик без звука')
+    p.add_argument('--only-fast', action='store_true',
+                   help='без мозаики и титра: только нарезка в ритм. Нужно, когда '
+                        'ролик строится на входе музыки, а не на сборке плитки')
+    p.add_argument('--fast-beats', type=float, default=0.5,
+                   help='сколько долей такта держится план в быстрой части')
     a = p.parse_args()
 
     files = load_photos(a.folder)
@@ -144,7 +155,9 @@ def main():
     t_title = t_mosaic + beat * 4
     t_slow = t_title + beat * 4
     per_slow = beat
-    per_fast = beat / 2
+    per_fast = beat * a.fast_beats
+    if a.only_fast:
+        t_mosaic = t_title = t_slow = 0.0
 
     print('такт %.3f сек | мозаика до %.1f | титр до %.1f | быстрая нарезка с %.1f' %
           (beat, t_mosaic, t_title, t_slow))
