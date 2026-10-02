@@ -41,10 +41,17 @@ def probe_duration(path):
     return float(r.stdout.strip())
 
 
-def words_of(path):
-    """Слова с таймкодами. Именно они, а не сегменты, задают, что оставить."""
+def words_of(path, model_name="small"):
+    """Слова с таймкодами. Именно они, а не сегменты, задают, что оставить.
+
+    Модель выбирается снаружи не ради скорости. На ролике про люстру
+    маленькая модель молча потеряла пять секунд речи: сегменты она
+    расшифровала целиком, а слов с таймкодами по этому куску не отдала,
+    и в субтитрах получилась дыра. Крупная модель этот кусок видит.
+    Поэтому: собрали карточки — пересчитайте слова и сверьте с речью.
+    """
     from faster_whisper import WhisperModel
-    model = WhisperModel("small", device="cpu", compute_type="int8")
+    model = WhisperModel(model_name, device="cpu", compute_type="int8")
     segs, _ = model.transcribe(
         path, language="ru", beam_size=5, word_timestamps=True,
         condition_on_previous_text=False,

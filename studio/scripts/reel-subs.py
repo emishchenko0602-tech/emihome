@@ -123,6 +123,9 @@ def main():
     p.add_argument("src")
     p.add_argument("--out", required=True)
     p.add_argument("--fix", default=None, help="json с правками расшифровки")
+    p.add_argument("--model", default="small",
+                   help="модель распознавания: small быстрее, medium точнее. "
+                        "На длинной речи small молча теряет куски")
     p.add_argument("--words", type=int, default=3, help="слов на карточке")
     p.add_argument("--max-gap", type=float, default=0.45,
                    help="пауза длиннее этой всегда рвёт карточку, сек")
@@ -142,7 +145,7 @@ def main():
         sys.exit(f"ОШИБКА: нет файла {a.src}")
 
     rt = load_tighten()
-    words = rt.words_of(a.src)
+    words = rt.words_of(a.src, a.model)
     if not words:
         sys.exit("ОШИБКА: в записи не распознано ни одного слова")
     print(f"слов: {len(words)}")
