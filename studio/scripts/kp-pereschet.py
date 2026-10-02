@@ -132,6 +132,97 @@ def fade(page, x0, y0, x1, y1, strength=0.62):
                    fill=(1, 1, 1), fill_opacity=strength)
 
 
+def split_line_at(page, x, baseline, parts, size, font):
+    """Набирает пункт списка кусками разного цвета от точки x.
+
+    В оригинале невходящие пункты не закрашены плашкой, а набраны светло-серым
+    (e7e6e6), а входящие тёмным (0d0d0d). Чтобы часть строки оставить, а часть
+    погасить, строку надо пересобрать из двух кусков.
+
+    Стирание сюда не входит намеренно: прямоугольники соседних строк
+    перекрываются, и чистить надо с запасом, переписывая соседей.
+    """
+    f = pymupdf.Font(fontfile=font)
+    for text, color in parts:
+        page.insert_text((x, baseline), text, fontname='ml', fontfile=font,
+                         fontsize=size, color=color)
+        x += f.text_length(text, fontsize=size)
+
+
+def list_items(page):
+    """Пункты правой колонки по порядку.
+
+    Новый пункт начинается там, где стоит маркер, набранный Arial.
+    Строки одного пункта склеиваются обратно в одну.
+    """
+    items, cur = [], None
+    for b in page.get_text('dict')['blocks']:
+        for l in b.get('lines', []):
+            for sp in l['spans']:
+                t = sp['text']
+                if sp['bbox'][0] < 520:
+                    continue
+                # Начало пункта опознаём по колонке маркера, а не по шрифту:
+                # в оригинале маркер набран Arial, а в перерисованном списке
+                # тем же Montserrat, и проверка по шрифту переставала работать.
+                if sp['bbox'][0] < 540:
+                    if cur:
+                        items.append(cur.strip())
+                    cur = ''
+                elif cur is not None:
+                    # Пробел добавляем сами: при переносе строки его нет ни
+                    # в конце первой части, ни в начале второй, и склейка
+                    # давала «кслову» вместо «к слову».
+                    cur += t + ' '
+    if cur:
+        items.append(cur.strip())
+    return items
+
+
+def draw_list(page, items, font, x_bullet=531, x_text=544, top=96.6, step=13.2,
+              width=285, size=11, color=(0x0d / 255, 0x0d / 255, 0x0d / 255),
+              pale=None):
+    """Рисует правую колонку заново.
+
+    Перерисовка целиком вместо точечных правок. Причина: прямоугольники
+    соседних строк перекрываются, и стирание одного пункта уносит соседа,
+    а расширение области уносит следующего. Цепочку надо обрывать.
+    """
+    f = pymupdf.Font(fontfile=font)
+    y = top
+    for item in items:
+        words, lines, cur = item.split(), [], ''
+        for w in words:
+            t = (cur + ' ' + w).strip()
+            if f.text_length(t, fontsize=size) <= width:
+                cur = t
+            else:
+                lines.append(cur)
+                cur = w
+        if cur:
+            lines.append(cur)
+        page.insert_text((x_bullet, y), chr(0x2022), fontname='ml', fontfile=font,
+                         fontsize=size, color=color)
+        for i, ln in enumerate(lines):
+            col = color
+            if pale and item in pale:
+                head = pale[item]
+                # Часть строки гасим: до head тёмным, дальше светлым.
+                if head in ln:
+                    k = ln.index(head)
+                    page.insert_text((x_text, y), ln[:k], fontname='ml', fontfile=font,
+                                     fontsize=size, color=color)
+                    page.insert_text((x_text + f.text_length(ln[:k], fontsize=size), y),
+                                     ln[k:], fontname='ml', fontfile=font, fontsize=size,
+                                     color=(0xe7 / 255, 0xe6 / 255, 0xe6 / 255))
+                    y += step
+                    continue
+            page.insert_text((x_text, y), ln, fontname='ml', fontfile=font,
+                             fontsize=size, color=col)
+            y += step
+    return y
+
+
 def money(value):
     return '%s р.' % format(int(value), ',').replace(',', ' ')
 
@@ -146,6 +237,7 @@ def main():
     p.add_argument('--plan-price', type=float, default=30000)
     p.add_argument('--site', default=None)
     p.add_argument('--email', default=None)
+    p.add_argument('--term', default='2 месяца', help='срок разработки проекта')
     p.add_argument('--png-dir', default=None)
     a = p.parse_args()
 
@@ -162,7 +254,10 @@ def main():
         sys.exit('ОШИБКА: не нашёл страницы пакетов Premium и Standart')
 
     # Правило 1: копируем до правок.
-    doc.fullcopy_page(i_std, to=i_std + 1)
+    # «Концепция» делается из Premium: по наполнению она равна полному
+    # пакету, отличается только тем, что вместо трёхмерных визуализаций
+    # коллажи. Копия со Standart давала бы урезанные спецификации.
+    doc.fullcopy_page(i_prem, to=i_std + 1)
     doc.fullcopy_page(i_std, to=i_std + 2)
     i_conc, i_plan = i_std + 1, i_std + 2
     print('новые страницы: %d и %d' % (i_conc + 1, i_plan + 1))
@@ -188,24 +283,54 @@ def main():
     block(k, (90, 128, 345, 186), ['Дизайн-проект', '«Концепция»'],
           20.0, (0, 0, 0), 22, font, 155.6)
     block(k, (90, 200, 400, 292),
-          ['Дизайн-проект с коллажами',
-           'и мудбордами вместо 3D-',
-           'визуализаций, с полными',
-           'чертежами и упрощенными',
-           'спецификациями'],
+          ['Полный дизайн-проект с',
+           'коллажами и мудбордами',
+           'вместо 3D-визуализаций,',
+           'с полными чертежами',
+           'и детальными спецификациями'],
           14.0, INK, 15, font, 220.9)
     block(k, (88, 335, 480, 376),
           ['Расчетная стоимость дизайн-проекта',
            'под вашу задачу: %s р/кв.м.' % format(int(a.rate_concept), ',').replace(',', ' ')],
           14.0, INK, 15, font, 353.9)
-    apply_edits(k, [('312 000 р.', money(a.rate_concept * a.area), 14.0, INK, 0, 0)], font)
-    # Трёхмерной визуализации в этом пакете нет. Пункт занимает две строки
-    # с переносом, поэтому стираем область целиком и пишем свой.
-    clear(k, 528, 265, 845, 299)
-    k.insert_text((531, 280), chr(0x2022), fontname='ml', fontfile=font, fontsize=11, color=(0, 0, 0))
-    k.insert_text((544, 280), 'Коллажи и мудборды по каждой зоне',
-                  fontname='ml', fontfile=font, fontsize=11, color=(0, 0, 0))
-    print('  Концепция %s' % money(a.rate_concept * a.area))
+    apply_edits(k, [('360 000 р.', money(a.rate_concept * a.area), 14.0, INK, 0, 0)], font)
+    # Список берём у Premium и перерисовываем целиком, заменив один пункт.
+    # Точечные стирания здесь не работают: прямоугольники строк перекрываются,
+    # и каждое расширение области уносило следующий пункт по цепочке.
+    items = list_items(doc[i_prem])
+    items = ['Коллажи и мудборды по каждой зоне' if '3D визуализация' in it else it
+             for it in items]
+    k.add_redact_annot(pymupdf.Rect(525, 78, 850, 455), fill=(1, 1, 1))
+    k.apply_redactions(images=pymupdf.PDF_REDACT_IMAGE_NONE)
+    draw_list(k, items, font,
+              pale={it: ' и мебели' for it in items if it.startswith('Смета по отделочным')})
+    print('  Концепция %s (наполнение как в Premium)' % money(a.rate_concept * a.area))
+
+    # Смета по отделочным материалам в Standart и Концепцию входит,
+    # по мебели — нет. Стираем хвост списка целиком и набираем заново:
+    # строка сметы перекрывается прямоугольником следующего пункта, и чистка
+    # по её границам обрывает «Изготовление комплектов чертежей».
+    DARK = (0x0d / 255, 0x0d / 255, 0x0d / 255)
+    PALE = (0xe7 / 255, 0xe6 / 255, 0xe6 / 255)
+    # Только Standart: на странице «Концепция» список перерисован целиком
+    # функцией draw_list, и она уже гасит «и мебели» сама. Повторная правка
+    # по жёстким координатам ломала бы свежую раскладку.
+    for idx in (i_std,):
+        pg = doc[idx]
+        pg.add_redact_annot(pymupdf.Rect(543, 399, 806, 446), fill=(1, 1, 1))
+        pg.apply_redactions(images=pymupdf.PDF_REDACT_IMAGE_NONE)
+        # Маркер пункта набран отдельным спаном и мог остаться бледным
+        # от состояния, когда пункт был погашен целиком. Перекрываем тёмным.
+        pg.insert_text((531, 412.9), chr(0x2022), fontname='ml', fontfile=font,
+                       fontsize=11, color=DARK)
+        split_line_at(pg, 544, 412.9,
+                      [('Смета по отделочным материалам', DARK), (' и мебели', PALE)],
+                      11.0, font)
+        pg.insert_text((544, 425.9), 'Изготовление комплектов чертежей дизайн-',
+                       fontname='ml', fontfile=font, fontsize=11, color=DARK)
+        pg.insert_text((544, 438.9), 'проекта на бумажном носителе',
+                       fontname='ml', fontfile=font, fontsize=11, color=DARK)
+    print('  смета по отделке подсвечена в Standart')
 
     # ---- пакет «Планировка» --------------------------------------------
     k = doc[i_plan]
@@ -228,6 +353,23 @@ def main():
     fade(k, 528, 111, 845, 445, strength=0.7)
     print('  Планировка %s' % money(a.plan_price))
 
+    # ---- срок разработки ------------------------------------------------
+    i_srok = page_with(doc, 'Срок разработки проекта')
+    if i_srok is not None:
+        block(doc[i_srok], (86, 379, 520, 404),
+              ['Срок разработки проекта: %s' % a.term], 14.0, (0, 0, 0), 15, font, 397.9)
+        print('  срок разработки: %s (стр.%d)' % (a.term, i_srok + 1))
+
+    # ---- авторский надзор ----------------------------------------------
+    # Екатерина: цену убрать, писать «обсуждается индивидуально».
+    # Страницу оставляем: услуга есть, не названа только сумма.
+    i_nadzor = page_with(doc, 'авторского надзора')
+    if i_nadzor is not None:
+        block(doc[i_nadzor], (92, 394, 520, 420),
+              ['Стоимость авторского надзора: обсуждается индивидуально'],
+              14.0, (0, 0, 0), 15, font, 413.9)
+        print('  авторский надзор: цена убрана, стр.%d' % (i_nadzor + 1))
+
     # ---- контакты -------------------------------------------------------
     # Блоком, а не построчно: строки стоят с шагом 13 при высоте 15,
     # и точечная замена съедает соседей. На этом я уже потерял телефон и VK.
@@ -245,6 +387,23 @@ def main():
             'Telegram: https://t.me/emihome',
         ], 12.0, (0, 0, 0), 13, font, 208.4)
         print('  контакты пересобраны на стр.%d' % (i_con + 1))
+
+    # Проверка, а не доверие: список «Концепции» обязан повторять Premium,
+    # кроме пункта про визуализации. Сверяем пункты целиком, а не строки:
+    # перенос слова в разных раскладках встаёт по-разному, и построчное
+    # сравнение давало ложную тревогу.
+    def norm(x):
+        return ' '.join(x.replace('-', ' ').split()).rstrip('.').lower()
+
+    was = {norm(x) for x in list_items(doc[i_prem])}
+    now = {norm(x) for x in list_items(doc[i_conc])}
+    lost = {x for x in was - now if '3d визуализация' not in x}
+    if lost:
+        print('  ВНИМАНИЕ: в Концепции не хватает пунктов Premium:')
+        for x in sorted(lost):
+            print('    - %s' % x)
+    else:
+        print('  проверка: список Концепции повторяет Premium, %d пунктов' % len(now))
 
     doc.save(a.out, garbage=3, deflate=True)
     print('готово: %s (%d страниц, %.1f МБ)'
